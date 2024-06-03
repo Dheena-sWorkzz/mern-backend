@@ -1,7 +1,7 @@
 // Import required modules
 const http = require('http');
 const { MongoClient } = require('mongodb');
-const url = 'mongodb://localhost:3000';
+const url = 'mongodb://localhost:27017';
 const dbName = 'my_database';
 
 // Create a simple HTTP server
@@ -11,7 +11,7 @@ const server = http.createServer((req, res) => {
 });
 
 // Connect to MongoDB and start the server
-MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+MongoClient.connect(url, (err, client) => {
   if (err) {
     console.error('Error connecting to MongoDB:', err);
     return;
