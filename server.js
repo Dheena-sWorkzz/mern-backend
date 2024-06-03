@@ -8,6 +8,7 @@ const like = require("./Routing/Likes");
 const reply = require("./Routing/Replys");
 const path = require('path');
 const cors = require("cors");
+const fs = require('fs');
 
 const app = express();
 
@@ -36,15 +37,24 @@ app.use("/reply", reply);
 
 // Serve static files from the React frontend app
 const buildPath = path.join(__dirname, "../Frontend/Electronic_fix/dist");
+
+// Check if index.html exists
+const indexHtmlPath = path.join(buildPath, "index.html");
+if (!fs.existsSync(indexHtmlPath)) {
+  console.error(`Error: ${indexHtmlPath} does not exist.`);
+  process.exit(1); // Exit the server process if index.html is missing
+}
+
 app.use(express.static(buildPath));
 
 // Handle any other routes and serve the index.html from the React app
 app.get("/*", function(req, res) {
   res.sendFile(
-    path.join(buildPath, "index.html"),
+    indexHtmlPath,
     function(err) {
       if (err) {
-        res.status(500).send(err);
+        console.error(err);
+        res.status(500).send("Internal Server Error");
       }
     }
   );
