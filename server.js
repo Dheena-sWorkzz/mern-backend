@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const Dbconnect = require("./DbConnect/DbConnect");
 const cookieParser = require('cookie-parser');
@@ -23,7 +22,7 @@ app.use(cookieParser());
 
 // CORS configuration
 const corsOptions = {
-  origin: 'http://localhost:5173', // Your frontend URL
+  origin: ['http://localhost:5173', 'https://mern-frontend-ii0q.onrender.com'], // Array of allowed origins
   credentials: true // Allow cookies to be sent
 };
 
