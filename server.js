@@ -1,40 +1,60 @@
-// Import required modules
-const http = require('http');
-const { MongoClient } = require('mongodb');
-const url = 'mongodb://localhost:3000';
-const dbName = 'my_database';
+require('dotenv').config();
+const express = require('express');
+const Dbconnect = require("./DbConnect/DbConnect");
+const cookieParser = require('cookie-parser');
+const bodyParser = require("body-parser");
+const userRoutes = require("./Routing/User");
+const PostRoutes = require("./Routing/PostItem");
+const like = require("./Routing/Likes");
+const reply = require("./Routing/Replys");
+const path = require('path');
+const cors = require("cors");
 
-// Create a simple HTTP server
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Hello World!\n');
+const app = express();
+
+// Connect to the database
+Dbconnect();
+
+// Middleware to parse JSON and URL-encoded data
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(cookieParser());
+
+// CORS configuration
+const corsOptions = {
+  origin: 'http://localhost:5173', // Your frontend URL
+  credentials: true // Allow cookies to be sent
+};
+
+app.use(cors(corsOptions));
+
+// Routes
+app.use("/user", userRoutes);
+app.use("/item", PostRoutes);
+app.use("/like", like);
+app.use("/reply", reply);
+
+// Serve static files from the React frontend app
+const buildPath = path.join(__dirname, "../Frontend/Electronic_fix/dist");
+app.use(express.static(buildPath));
+
+// Handle any other routes and serve the index.html from the React app
+app.get("/*", function(req, res) {
+  res.sendFile(
+    path.join(buildPath, "index.html"),
+    function(err) {
+      if (err) {
+        res.status(500).send(err);
+      }
+    }
+  );
 });
 
-// Connect to MongoDB and start the server
-MongoClient.connect(url, (err, client) => {
-  if (err) {
-    console.error('Error connecting to MongoDB:', err);
-    return;
-  }
-  console.log('Connected to MongoDB');
+// Get the port from environment variables or default to 3000
+const port = process.env.PORT || 3000;
 
-  // Specify the database and collection
-  const db = client.db(dbName);
-  const collection = db.collection('users');
-
-  // Perform MongoDB operations here
-  // For example, you can insert a document
-  collection.insertOne({ name: 'John', age: 30 })
-    .then(result => {
-      console.log('Inserted document:', result.insertedId);
-    })
-    .catch(err => {
-      console.error('Error inserting document:', err);
-    });
-
-  // Start the HTTP server
-  const port = process.env.PORT || 3000;
-  server.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
-  });
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
 });
