@@ -1,7 +1,7 @@
 // Import required modules
 const http = require('http');
 const { MongoClient } = require('mongodb');
-const url = 'mongodb://localhost:27017';
+const url = 'mongodb://localhost:3000';
 const dbName = 'my_database';
 
 // Create a simple HTTP server
